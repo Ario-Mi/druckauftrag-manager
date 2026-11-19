@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf('Übersicht')}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('dashboard')}"></header>
+
+<main class="seite">
+    <section class="einstieg">
+        <!-- Der Satz wird aus den Zahlen des Tages zusammengesetzt -->
+        <h1 class="titel">
+            <span th:text="${datumText} + '.'">Donnerstag, 19. November.</span><br>
+            Heute <span th:text="${heuteVerb}">geht</span> <em th:text="${heuteText}">ein Auftrag</em> raus,<br>
+            <th:block th:if="${anzahlUeberfaellig == 0}">nichts ist überfällig.</th:block>
+            <th:block th:unless="${anzahlUeberfaellig == 0}">
+                <em class="rot" th:text="${ueberfaelligText}">einer</em>
+                <span th:text="${anzahlUeberfaellig == 1} ? 'ist' : 'sind'">ist</span> überfällig.
+            </th:block>
+        </h1>
+
+        <div class="kennzahlen">
+            <a th:href="@{/auftraege}" class="kennzahl">
+                <b th:text="${anzahlOffen}">0</b><span>offene Aufträge</span>
+            </a>
+            <div class="kennzahl">
+                <b th:text="${anzahlHeute}">0</b><span>heute fällig</span>
+            </div>
+            <div class="kennzahl">
+                <b th:text="${anzahlWoche}">0</b><span>fällig bis Sonntag</span>
+            </div>
+            <div class="kennzahl" th:classappend="${anzahlUeberfaellig gt 0} ? 'rot'">
+                <b th:text="${anzahlUeberfaellig}">0</b><span>überfällig</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="raster">
+        <section>
+            <h2 class="ueberschrift">Als Nächstes</h2>
+
+            <p class="leer" th:if="${#lists.isEmpty(baldFaellig)}">In den nächsten 7 Tagen ist nichts fällig.</p>
+
+            <a th:each="a : ${baldFaellig}" th:href="@{/auftraege/{id}(id=${a.id})}" class="zeile">
+                <span class="datum" th:classappend="${a.ueberfaellig} ? 'ist-rot'">
+                    <span th:text="${#temporals.format(a.liefertermin, 'dd.MM.')}">18.11.</span>
+                    <span class="klein" th:text="${a.faelligkeitText}">heute</span>
+                </span>
+                <span class="haupt">
+                    <span th:text="${a.produkt}">Flyer</span>
+                    <span class="klein" th:text="${a.kunde.firma}">Kunde</span>
+                </span>
+                <span th:replace="~{fragmente :: statusLabel(${a.status})}"></span>
+                <span class="nummer" th:text="${a.nummer}">A-0001</span>
+            </a>
+        </section>
+
+        <section>
+            <h2 class="ueberschrift">Nach Status</h2>
+            <div class="statusliste">
+                <a th:each="eintrag : ${statusZaehler}" th:href="@{/auftraege(status=${eintrag.key})}">
+                    <span th:replace="~{fragmente :: statusLabel(${eintrag.key})}"></span>
+                    <b th:text="${eintrag.value}">0</b>
+                </a>
+            </div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

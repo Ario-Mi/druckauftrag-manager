@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf(${auftrag.id == null ? 'Neuer Auftrag' : 'Auftrag bearbeiten'})}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('auftraege')}"></header>
+
+<main class="seite">
+    <a th:href="${auftrag.id == null} ? @{/auftraege} : @{/auftraege/{id}(id=${auftrag.id})}" class="zurueck">← Zurück</a>
+
+    <div class="seitenkopf">
+        <h1 th:text="${auftrag.id == null ? 'Neuer Auftrag' : 'Auftrag ' + auftrag.nummer + ' bearbeiten'}">Neuer Auftrag</h1>
+    </div>
+
+    <div class="raster">
+        <form th:action="@{/auftraege/speichern}" th:object="${auftrag}" method="post" class="formular" novalidate>
+            <input type="hidden" th:field="*{id}">
+
+            <div class="felder">
+                <div class="feld feld-breit">
+                    <label for="kundeId">Kunde <span class="pflicht">*</span></label>
+                    <select id="kundeId" name="kundeId" th:classappend="${#fields.hasErrors('kunde')} ? 'fehler'">
+                        <option value="">bitte wählen</option>
+                        <option th:each="k : ${kunden}" th:value="${k.id}" th:text="${k.firma}"
+                                th:selected="${k.id == gewaehlteKundeId}">Kunde</option>
+                    </select>
+                    <p class="feldfehler" th:if="${#fields.hasErrors('kunde')}" th:errors="*{kunde}"></p>
+                </div>
+
+                <div class="feld">
+                    <label for="produkt">Produkt <span class="pflicht">*</span></label>
+                    <input type="text" id="produkt" th:field="*{produkt}" th:errorclass="fehler" list="produkte"
+                           maxlength="100" placeholder="z. B. Flyer">
+                    <!-- Vorschläge beim Tippen, freie Eingabe bleibt möglich -->
+                    <datalist id="produkte">
+                        <option value="Flyer"></option>
+                        <option value="Plakat"></option>
+                        <option value="Postkarten"></option>
+                        <option value="Broschüre"></option>
+                        <option value="Briefpapier"></option>
+                        <option value="Speisekarten"></option>
+                    </datalist>
+                    <p class="feldfehler" th:if="${#fields.hasErrors('produkt')}" th:errors="*{produkt}"></p>
+                </div>
+
+                <div class="feld">
+                    <label for="auflage">Auflage in Stück <span class="pflicht">*</span></label>
+                    <input type="number" id="auflage" th:field="*{auflage}" th:errorclass="fehler" min="1"
+                           max="100000" step="1">
+                    <p class="feldfehler" th:if="${#fields.hasErrors('auflage')}" th:errors="*{auflage}"></p>
+                </div>
+
+                <div class="feld">
+                    <label for="format">Format <span class="pflicht">*</span></label>
+                    <select id="format" th:field="*{format}" th:errorclass="fehler">
+                        <option value="">bitte wählen</option>
+                        <option th:each="f : ${formate}" th:value="${f}" th:text="${f.bezeichnung}">A4</option>
+                    </select>
+                    <p class="feldfehler" th:if="${#fields.hasErrors('format')}" th:errors="*{format}"></p>
+                </div>
+
+                <div class="feld">
+                    <label for="papiersorte">Papier <span class="pflicht">*</span></label>
+                    <select id="papiersorte" th:field="*{papiersorte}" th:errorclass="fehler">
+                        <option value="">bitte wählen</option>
+                        <option th:each="p : ${papiersorten}" th:value="${p}" th:text="${p.bezeichnung}">Papier</option>
+                    </select>
+                    <p class="feldfehler" th:if="${#fields.hasErrors('papiersorte')}" th:errors="*{papiersorte}"></p>
+                </div>
+
+                <div class="feld">
+                    <label for="liefertermin">Liefertermin <span class="pflicht">*</span></label>
+                    <input type="date" id="liefertermin" th:field="*{liefertermin}" th:errorclass="fehler">
+                    <p class="feldfehler" th:if="${#fields.hasErrors('liefertermin')}" th:errors="*{liefertermin}"></p>
+                </div>
+
+                <div class="feld feld-breit">
+                    <label for="notiz">Notiz</label>
+                    <textarea id="notiz" th:field="*{notiz}" th:errorclass="fehler" rows="3" maxlength="1000"
+                              placeholder="z. B. Druckdaten folgen, Korrekturabzug gewünscht"></textarea>
+                    <p class="feldfehler" th:if="${#fields.hasErrors('notiz')}" th:errors="*{notiz}"></p>
+                </div>
+            </div>
+
+            <div class="formular-ende">
+                <button type="submit" class="knopf knopf-gruen">Speichern</button>
+                <a th:href="${auftrag.id == null} ? @{/auftraege} : @{/auftraege/{id}(id=${auftrag.id})}"
+                   class="textlink">Abbrechen</a>
+            </div>
+        </form>
+
+        <aside class="preisinfo">
+            <h2 class="ueberschrift">Preis</h2>
+            <p>Wird beim Speichern automatisch berechnet.</p>
+            <dl>
+                <dt>A6</dt><dd>0,08 € / Stück</dd>
+                <dt>A5</dt><dd>0,12 € / Stück</dd>
+                <dt>A4</dt><dd>0,20 € / Stück</dd>
+                <dt>A3</dt><dd>0,40 € / Stück</dd>
+            </dl>
+            <!-- &nbsp; verhindert, dass z. B. "%" allein in die nächste Zeile rutscht -->
+            <p>Papier: 135&nbsp;g ×1,2 · 250&nbsp;g ×1,5 · Karton ×1,8</p>
+            <p>Rabatt: ab 500&nbsp;Stück 10&nbsp;%, ab 1.000&nbsp;Stück 20&nbsp;%</p>
+            <p>Einrichtung: 15,00&nbsp;€ pro Auftrag</p>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

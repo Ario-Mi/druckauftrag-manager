@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf('Auftrag ' + ${auftrag.nummer})}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('auftraege')}"></header>
+
+<main class="seite">
+    <a th:href="@{/auftraege}" class="zurueck">← Alle Aufträge</a>
+
+    <div class="seitenkopf">
+        <div>
+            <h1 th:text="${auftrag.produkt}">Flyer</h1>
+            <p class="unterzeile">
+                für <a th:href="@{/kunden/{id}(id=${auftrag.kunde.id})}" th:text="${auftrag.kunde.firma}">Kunde</a>
+                · <span th:text="${auftrag.nummer}">A-0001</span>
+            </p>
+        </div>
+        <div class="aktionen">
+            <a th:href="@{/auftraege/{id}/bearbeiten(id=${auftrag.id})}" class="textlink">Bearbeiten</a>
+            <form th:if="${auftrag.status.name() != 'ERLEDIGT'}"
+                  th:action="@{/auftraege/{id}/weiter(id=${auftrag.id})}" method="post">
+                <button type="submit" class="knopf knopf-gruen"
+                        th:text="|Weiter: ${auftrag.status.naechsterStatus().bezeichnung} →|">Weiter</button>
+            </form>
+        </div>
+    </div>
+
+    <p th:replace="~{fragmente :: meldung}"></p>
+
+    <!-- Ablauf: erledigte Schritte dunkel, aktueller Schritt grün -->
+    <ol class="verlauf">
+        <li th:each="s : ${alleStatus}" th:text="${s.bezeichnung}"
+            th:classappend="${s.ordinal() lt auftrag.status.ordinal()} ? 'erreicht' : (${s == auftrag.status} ? 'aktuell')">
+            Status
+        </li>
+    </ol>
+
+    <div class="raster">
+        <section>
+            <dl class="daten">
+                <div>
+                    <dt>Auflage</dt>
+                    <dd th:text="${#numbers.formatInteger(auftrag.auflage, 1, 'POINT')} + ' Stück'">100 Stück</dd>
+                </div>
+                <div>
+                    <dt>Format</dt>
+                    <dd th:text="${auftrag.format.bezeichnung}">A4</dd>
+                </div>
+                <div>
+                    <dt>Papier</dt>
+                    <dd th:text="${auftrag.papiersorte.bezeichnung}">Papier</dd>
+                </div>
+                <div>
+                    <dt>Liefertermin</dt>
+                    <dd th:classappend="${auftrag.ueberfaellig} ? 'ist-rot'">
+                        <span th:text="${#temporals.format(auftrag.liefertermin, 'dd.MM.yyyy')}">01.01.2027</span>
+                        <span class="klein" th:if="${auftrag.status.name() != 'ERLEDIGT'}"
+                              th:text="${auftrag.faelligkeitText}">heute</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Angelegt am</dt>
+                    <dd th:text="${#temporals.format(auftrag.erstelltAm, 'dd.MM.yyyy')}">01.01.2027</dd>
+                </div>
+                <div>
+                    <dt>Preis</dt>
+                    <dd class="preis"
+                        th:text="${#numbers.formatDecimal(auftrag.preis, 1, 'POINT', 2, 'COMMA')} + ' €'">0,00 €</dd>
+                </div>
+            </dl>
+
+            <div class="notiz" th:unless="${#strings.isEmpty(auftrag.notiz)}">
+                <h2 class="ueberschrift">Notiz</h2>
+                <p th:text="${auftrag.notiz}">Notiz</p>
+            </div>
+        </section>
+
+        <aside>
+            <h2 class="ueberschrift">Status korrigieren</h2>
+            <p class="hinweis">Falls ein Schritt aus Versehen weitergeschaltet wurde.</p>
+            <form th:action="@{/auftraege/{id}/status(id=${auftrag.id})}" method="post" class="korrektur">
+                <select name="status" aria-label="Neuer Status">
+                    <option th:each="s : ${alleStatus}" th:value="${s}" th:text="${s.bezeichnung}"
+                            th:selected="${s == auftrag.status}">Status</option>
+                </select>
+                <button type="submit" class="knopf">Setzen</button>
+            </form>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

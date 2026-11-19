@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf('Aufträge')}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('auftraege')}"></header>
+
+<main class="seite">
+    <div class="seitenkopf">
+        <div>
+            <h1>Aufträge</h1>
+            <p class="unterzeile" th:text="${#lists.size(auftraege)} + ' angezeigt'">0 angezeigt</p>
+        </div>
+        <a th:href="@{/auftraege/neu}" class="knopf knopf-gruen">Neuer Auftrag</a>
+    </div>
+
+    <p th:replace="~{fragmente :: meldung}"></p>
+
+    <!-- Filter nach Status als Reiter -->
+    <nav class="reiter">
+        <a th:href="@{/auftraege}" th:classappend="${gewaehlterStatus == null} ? 'aktiv'">
+            Alle<span th:text="${anzahlGesamt}">0</span>
+        </a>
+        <a th:each="eintrag : ${statusZaehler}" th:href="@{/auftraege(status=${eintrag.key})}"
+           th:classappend="${eintrag.key == gewaehlterStatus} ? 'aktiv'">
+            <th:block th:text="${eintrag.key.bezeichnung}">Status</th:block><span th:text="${eintrag.value}">0</span>
+        </a>
+    </nav>
+
+    <form th:action="@{/auftraege}" method="get" class="suche">
+        <input type="hidden" name="status" th:value="${gewaehlterStatus}">
+        <input type="search" name="suche" th:value="${suche}" placeholder="Nummer, Produkt oder Kunde suchen"
+               aria-label="Aufträge suchen">
+        <button type="submit" class="knopf">Suchen</button>
+        <a th:unless="${#strings.isEmpty(suche)}" th:href="@{/auftraege}" class="textlink">zurücksetzen</a>
+    </form>
+
+    <p class="leer" th:if="${#lists.isEmpty(auftraege)}">Keine Aufträge gefunden.</p>
+
+    <div class="tabelle-box" th:unless="${#lists.isEmpty(auftraege)}">
+        <table class="tabelle">
+            <thead>
+            <tr>
+                <th>Liefertermin</th>
+                <th>Auftrag</th>
+                <th class="rechts">Auflage</th>
+                <th>Format / Papier</th>
+                <th>Status</th>
+                <th class="rechts">Preis</th>
+                <th class="rechts">Nr.</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${auftraege}">
+                <td class="datum" th:classappend="${a.ueberfaellig} ? 'ist-rot'">
+                    <span th:text="${#temporals.format(a.liefertermin, 'dd.MM.yy')}">01.01.27</span>
+                    <span class="klein" th:if="${a.status.name() != 'ERLEDIGT'}" th:text="${a.faelligkeitText}">heute</span>
+                </td>
+                <td>
+                    <a th:href="@{/auftraege/{id}(id=${a.id})}" class="haupt" th:text="${a.produkt}">Flyer</a>
+                    <a th:href="@{/kunden/{id}(id=${a.kunde.id})}" class="klein" th:text="${a.kunde.firma}">Kunde</a>
+                </td>
+                <td class="rechts zahl" th:text="${#numbers.formatInteger(a.auflage, 1, 'POINT')}">100</td>
+                <td>
+                    <span th:text="${a.format}">A4</span>
+                    <span class="klein" th:text="${a.papiersorte.bezeichnung}">Papier</span>
+                </td>
+                <td><span th:replace="~{fragmente :: statusLabel(${a.status})}"></span></td>
+                <td class="rechts zahl"
+                    th:text="${#numbers.formatDecimal(a.preis, 1, 'POINT', 2, 'COMMA')} + ' €'">0,00 €</td>
+                <td class="nummer" th:text="${a.nummer}">A-0001</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf(${kunde.id == null ? 'Neuer Kunde' : 'Kunde bearbeiten'})}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('kunden')}"></header>
+
+<main class="seite">
+    <a th:href="${kunde.id == null} ? @{/kunden} : @{/kunden/{id}(id=${kunde.id})}" class="zurueck">← Zurück</a>
+
+    <div class="seitenkopf">
+        <h1 th:text="${kunde.id == null ? 'Neuer Kunde' : 'Kunde bearbeiten'}">Neuer Kunde</h1>
+    </div>
+
+    <form th:action="@{/kunden/speichern}" th:object="${kunde}" method="post" class="formular" novalidate>
+        <input type="hidden" th:field="*{id}">
+
+        <div class="felder">
+            <div class="feld feld-breit">
+                <label for="firma">Firma oder Name <span class="pflicht">*</span></label>
+                <input type="text" id="firma" th:field="*{firma}" th:errorclass="fehler" maxlength="100">
+                <p class="feldfehler" th:if="${#fields.hasErrors('firma')}" th:errors="*{firma}"></p>
+            </div>
+
+            <div class="feld">
+                <label for="ansprechpartner">Ansprechpartner</label>
+                <input type="text" id="ansprechpartner" th:field="*{ansprechpartner}" th:errorclass="fehler"
+                       maxlength="100">
+                <p class="feldfehler" th:if="${#fields.hasErrors('ansprechpartner')}"
+                   th:errors="*{ansprechpartner}"></p>
+            </div>
+
+            <div class="feld">
+                <label for="telefon">Telefon</label>
+                <input type="tel" id="telefon" th:field="*{telefon}" th:errorclass="fehler" maxlength="30">
+                <p class="feldfehler" th:if="${#fields.hasErrors('telefon')}" th:errors="*{telefon}"></p>
+            </div>
+
+            <div class="feld feld-breit">
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" th:field="*{email}" th:errorclass="fehler" maxlength="100">
+                <p class="feldfehler" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            </div>
+        </div>
+
+        <div class="formular-ende">
+            <button type="submit" class="knopf knopf-gruen">Speichern</button>
+            <a th:href="${kunde.id == null} ? @{/kunden} : @{/kunden/{id}(id=${kunde.id})}"
+               class="textlink">Abbrechen</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf(${kunde.firma})}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('kunden')}"></header>
+
+<main class="seite">
+    <a th:href="@{/kunden}" class="zurueck">← Alle Kunden</a>
+
+    <div class="seitenkopf">
+        <div>
+            <h1 th:text="${kunde.firma}">Firma</h1>
+            <p class="unterzeile" th:unless="${#strings.isEmpty(kunde.ansprechpartner)}"
+               th:text="'Ansprechpartner: ' + ${kunde.ansprechpartner}">Ansprechpartner</p>
+        </div>
+        <div class="aktionen">
+            <a th:href="@{/kunden/{id}/bearbeiten(id=${kunde.id})}" class="textlink">Bearbeiten</a>
+            <a th:href="@{/auftraege/neu(kundeId=${kunde.id})}" class="knopf knopf-gruen">Neuer Auftrag</a>
+        </div>
+    </div>
+
+    <p th:replace="~{fragmente :: meldung}"></p>
+
+    <dl class="daten">
+        <div>
+            <dt>E-Mail</dt>
+            <dd>
+                <a th:unless="${#strings.isEmpty(kunde.email)}" th:href="'mailto:' + ${kunde.email}"
+                   th:text="${kunde.email}">mail</a>
+                <span th:if="${#strings.isEmpty(kunde.email)}">–</span>
+            </dd>
+        </div>
+        <div>
+            <dt>Telefon</dt>
+            <dd th:text="${#strings.isEmpty(kunde.telefon)} ? '–' : ${kunde.telefon}">–</dd>
+        </div>
+        <div>
+            <dt>Aufträge</dt>
+            <dd th:text="${#lists.size(auftraege)}">0</dd>
+        </div>
+    </dl>
+
+    <h2 class="ueberschrift" style="margin-top: 64px">Aufträge</h2>
+
+    <p class="leer" th:if="${#lists.isEmpty(auftraege)}">Für diesen Kunden gibt es noch keine Aufträge.</p>
+
+    <div class="tabelle-box" th:unless="${#lists.isEmpty(auftraege)}">
+        <table class="tabelle">
+            <thead>
+            <tr>
+                <th>Liefertermin</th>
+                <th>Produkt</th>
+                <th class="rechts">Auflage</th>
+                <th>Status</th>
+                <th class="rechts">Preis</th>
+                <th class="rechts">Nr.</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${auftraege}">
+                <td class="datum" th:classappend="${a.ueberfaellig} ? 'ist-rot'"
+                    th:text="${#temporals.format(a.liefertermin, 'dd.MM.yy')}">01.01.27</td>
+                <td><a th:href="@{/auftraege/{id}(id=${a.id})}" class="haupt" th:text="${a.produkt}">Flyer</a></td>
+                <td class="rechts zahl" th:text="${#numbers.formatInteger(a.auflage, 1, 'POINT')}">100</td>
+                <td><span th:replace="~{fragmente :: statusLabel(${a.status})}"></span></td>
+                <td class="rechts zahl"
+                    th:text="${#numbers.formatDecimal(a.preis, 1, 'POINT', 2, 'COMMA')} + ' €'">0,00 €</td>
+                <td class="nummer" th:text="${a.nummer}">A-0001</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

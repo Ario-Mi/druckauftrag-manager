@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<!-- Spring Boot zeigt diese Seite automatisch bei Fehlern (z. B. 404) an -->
+<head th:replace="~{fragmente :: kopf('Fehler')}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('')}"></header>
+
+<main class="seite">
+    <section class="fehlerseite">
+        <p class="fehlercode" th:text="${status}">404</p>
+        <h1 class="titel" th:text="${status == 404} ? 'Diese Seite gibt es nicht.' : 'Da ist etwas schiefgelaufen.'">
+            Fehler</h1>
+        <p th:text="${#strings.isEmpty(message)} ? 'Bitte versuche es noch einmal.' : ${message}">Details</p>
+        <a th:href="@{/}" class="knopf knopf-gruen">Zur Übersicht</a>
+    </section>
+</main>
+</body>
+</html>

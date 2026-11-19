@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmente :: kopf('Kunden')}"></head>
+<body>
+<header th:replace="~{fragmente :: kopfzeile('kunden')}"></header>
+
+<main class="seite">
+    <div class="seitenkopf">
+        <div>
+            <h1>Kunden</h1>
+            <p class="unterzeile" th:text="${#lists.size(kunden)} + ' angezeigt'">0 angezeigt</p>
+        </div>
+        <a th:href="@{/kunden/neu}" class="knopf knopf-gruen">Neuer Kunde</a>
+    </div>
+
+    <p th:replace="~{fragmente :: meldung}"></p>
+
+    <form th:action="@{/kunden}" method="get" class="suche">
+        <input type="search" name="suche" th:value="${suche}" placeholder="Firma oder Ansprechpartner suchen"
+               aria-label="Kunden suchen">
+        <button type="submit" class="knopf">Suchen</button>
+        <a th:unless="${#strings.isEmpty(suche)}" th:href="@{/kunden}" class="textlink">zurücksetzen</a>
+    </form>
+
+    <p class="leer" th:if="${#lists.isEmpty(kunden)}">Keine Kunden gefunden.</p>
+
+    <div class="tabelle-box" th:unless="${#lists.isEmpty(kunden)}">
+        <table class="tabelle">
+            <thead>
+            <tr>
+                <th>Firma</th>
+                <th>Ansprechpartner</th>
+                <th>E-Mail</th>
+                <th>Telefon</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="k : ${kunden}">
+                <td><a th:href="@{/kunden/{id}(id=${k.id})}" class="haupt" th:text="${k.firma}">Firma</a></td>
+                <td th:text="${k.ansprechpartner}">Name</td>
+                <td><a th:unless="${#strings.isEmpty(k.email)}" th:href="'mailto:' + ${k.email}"
+                       th:text="${k.email}">mail</a></td>
+                <td class="zahl" th:text="${k.telefon}">069</td>
+                <td class="rechts">
+                    <a th:href="@{/kunden/{id}/bearbeiten(id=${k.id})}" class="textlink">Bearbeiten</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

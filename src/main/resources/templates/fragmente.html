@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<!-- Wiederverwendbare Teile, die jede Seite mit th:replace einbindet -->
+
+<head th:fragment="kopf(titel)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titel} + ' · Druckauftrag'">Druckauftrag</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<header th:fragment="kopfzeile(aktiv)" class="kopfzeile">
+    <a th:href="@{/}" class="logo">Druckauftrag</a>
+    <nav class="menue">
+        <a th:href="@{/}" th:classappend="${aktiv == 'dashboard'} ? 'aktiv'">Übersicht</a>
+        <a th:href="@{/auftraege}" th:classappend="${aktiv == 'auftraege'} ? 'aktiv'">Aufträge</a>
+        <a th:href="@{/kunden}" th:classappend="${aktiv == 'kunden'} ? 'aktiv'">Kunden</a>
+        <a th:href="@{/auftraege/neu}" class="neu">Neuer Auftrag +</a>
+    </nav>
+</header>
+
+<p th:fragment="meldung" th:if="${meldung}" class="meldung" th:text="${meldung}">Gespeichert.</p>
+
+<span th:fragment="statusLabel(status)" class="status" th:classappend="${status.cssKlasse}"
+      th:text="${status.bezeichnung}">Status</span>
+
+</body>
+</html>
