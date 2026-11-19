@@ -25,8 +25,6 @@ Die Schriften liegen direkt im Projekt (`static/fonts`) und werden nicht von Goo
 
 ## Screenshots
 
-<!-- Screenshots im Ordner docs/screenshots ablegen -->
-
 | Übersicht | Auftrag |
 |-----------|---------|
 | ![Übersicht](docs/screenshots/dashboard.png) | ![Auftragsdetails](docs/screenshots/auftrag-detail.png) |
